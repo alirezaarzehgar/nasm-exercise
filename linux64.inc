@@ -1,7 +1,90 @@
+; helper macros
+; exit (int)
+%macro exit 1
+	mov	rax, sys_exit
+	mov	rdi, %1
+	syscall
+%endmacro
+
+; printstr (string)
+%macro printstr 1
+	mov	rax, %1
+	xor	rbx, rbx
+
+	%%loop:
+		inc	rax
+		inc	rbx
+
+		mov	cl, 0
+		cmp	[rax], cl
+		jnz	%%loop
+
+	mov	rax, sys_write
+	mov	rdi, stdout
+	mov	rsi, %1
+	mov	rdx, rbx
+	syscall
+%endmacro
+
+; dlen (num)
+%macro dlen 1
+	mov	eax, %1
+	xor	bl, bl
+	%%loop:
+		inc	bl
+		mov	edx, 0
+		mov	ecx, 10
+		div	ecx
+
+		cmp	eax, 0
+		jne	%%loop
+%endmacro
+
+; printchar (char)
+%macro printchar 1
+	mov	rax, sys_write
+	mov	rdi, stdout
+	mov	rsi, %1
+	mov	rdx, 1
+	syscall
+%endmacro
+
+; printnum(num, buf, buflen)
+%macro printnum 2
+	mov	eax, %1
+	xor	ebx, ebx
+	%%loop1:
+		mov	edx, 0
+		mov	ecx, 10
+		div	ecx
+
+		push	dx
+		inc	ebx
+
+		cmp	rax, 0
+		jne	%%loop1
+
+	mov	rbx, rbx
+	%%loop2:
+		cmp	rbx, 0
+		jle	%%end
+		dec	rbx
+
+		pop	dx
+		mov	al, dl
+		add	al, 48
+		mov	[%2], al
+
+		printchar %2
+		jmp	%%loop2
+
+	%%end:
+%endmacro
+
 ; STREAMS
-STDIN	equ	0
-STDOUT	equ	1
-STDERR	equ	2
+stdin	equ	0
+stdout	equ	1
+stderr	equ	2
 
 ; open flags
 O_CREAT     equ 64
@@ -365,27 +448,3 @@ sys_memfd_secret	equ	447
 sys_process_mrelease	equ	448
 sys_futex_waitv		equ	449
 compat_sys_ioctl	equ	514
-sys_readv		equ	515
-sys_writev		equ	516
-compat_sys_recvfrom	equ	517
-compat_sys_sendmsg	equ	518
-compat_sys_recvmsg	equ	519
-compat_sys_execve	equ	520
-compat_sys_ptrace	equ	521
-compat_sys_mq_notify	equ	527
-compat_sys_kexec_load	equ	528
-compat_sys_waitid	equ	529
-sys_vmsplice		equ	532
-sys_move_pages		equ	533
-compat_sys_preadv64	equ	534
-compat_sys_pwritev64	equ	535
-compat_sys_sendmmsg	equ	538
-sys_process_vm_readv	equ	539
-sys_process_vm_writev	equ	540
-sys_setsockopt		equ	541
-sys_getsockopt		equ	542
-compat_sys_io_setup	equ	543
-compat_sys_io_submit	equ	544
-compat_sys_execveat	equ	545
-compat_sys_preadv64v2	equ	546
-compat_sys_pwritev64v2	equ	547
