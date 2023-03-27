@@ -3,8 +3,11 @@ BINS := $(SRC:.asm=)
 
 all: $(BINS)
 
-$(BINS): $(SRC)
-	nasm -f elf64 $<
+%: %.asm
+	nasm -f elf64 $< -o $@.o
 	ld $@.o -o $@
+
 clean:
 	rm -rf $(BINS) *.o
+
+.PHONE: all clean

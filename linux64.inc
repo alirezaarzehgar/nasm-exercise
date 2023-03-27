@@ -11,13 +11,13 @@
 	mov	rax, %1
 	xor	rbx, rbx
 
-	%%loop:
-		inc	rax
-		inc	rbx
+%%loop:
+	inc	rax
+	inc	rbx
 
-		mov	cl, 0
-		cmp	[rax], cl
-		jnz	%%loop
+	mov	cl, 0
+	cmp	[rax], cl
+	jnz	%%loop
 
 	mov	rax, sys_write
 	mov	rdi, stdout
@@ -27,17 +27,19 @@
 %endmacro
 
 ; dlen (num)
-%macro dlen 1
+%macro dlen 2
 	mov	eax, %1
 	xor	bl, bl
-	%%loop:
-		inc	bl
-		mov	edx, 0
-		mov	ecx, 10
-		div	ecx
+%%loop:
+	inc	bl
+	mov	edx, 0
+	mov	ecx, 10
+	div	ecx
 
-		cmp	eax, 0
-		jne	%%loop
+	cmp	eax, 0
+	jne	%%loop
+
+	mov	%2, bl
 %endmacro
 
 ; printchar (char)
@@ -53,33 +55,37 @@
 %macro printnum 2
 	mov	eax, %1
 	xor	ebx, ebx
-	%%loop1:
-		mov	edx, 0
-		mov	ecx, 10
-		div	ecx
+%%loop1:
+	mov	edx, 0
+	mov	ecx, 10
+	div	ecx
 
-		push	dx
-		inc	ebx
+	push	dx
+	inc	ebx
 
-		cmp	rax, 0
-		jne	%%loop1
+	cmp	rax, 0
+	jne	%%loop1
 
 	mov	rbx, rbx
-	%%loop2:
-		cmp	rbx, 0
-		jle	%%end
-		dec	rbx
+%%loop2:
+	cmp	rbx, 0
+	jle	%%end
+	dec	rbx
 
-		pop	dx
-		mov	al, dl
-		add	al, 48
-		mov	[%2], al
+	pop	dx
+	mov	al, dl
+	add	al, 48
+	mov	[%2], al
 
-		printchar %2
-		jmp	%%loop2
+	printchar %2
+	jmp	%%loop2
 
-	%%end:
+%%end:
 %endmacro
+
+%macro atoi 2
+%endmacro
+	
 
 ; STREAMS
 stdin	equ	0
