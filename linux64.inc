@@ -51,7 +51,7 @@
 	syscall
 %endmacro
 
-; printnum(num, buf, buflen)
+; printnum(num, buf)
 %macro printnum 2
 	mov	eax, %1
 	xor	ebx, ebx
@@ -84,7 +84,47 @@
 %endmacro
 
 %macro atoi 2
+	mov	rax, %1
+	xor	%2, %2
+%%loop:
+	mov	cl, 0
+	cmp	[rax], cl
+	je	%%end
+
+	mov	cl, 48
+	cmp	[rax], cl
+	jl	%%end
+
+	mov	cl, 57
+	cmp	[rax], cl
+	jg	%%end
+
+	mov	bl, [rax]
+	sub	bl, 48
+
+	push	rax
+	mov	rax, %2
+	mov	rcx, 10
+	mul	rcx
+	add	al, bl
+	mov	%2, rax
+	pop	rax
+
+	inc	rax
+	jmp	%%loop
+
+%%end:
 %endmacro
+
+; getline (buffer, len)
+%macro getline 2
+	mov	rax, sys_read
+	mov	rdi, stdin
+	mov	rsi, %1
+	mov	rdx, %2
+	syscall
+%endmacro
+
 	
 
 ; STREAMS
